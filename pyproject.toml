@@ -1,0 +1,15 @@
+[project]
+name = "receipt-vision-management-system"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "pyside6",
+  "opencv-python-headless",
+  "rapidocr-onnxruntime",
+  "llama-cpp-python",
+  "dateparser",
+  "platformdirs",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
