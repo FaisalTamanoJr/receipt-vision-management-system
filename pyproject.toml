@@ -9,6 +9,8 @@ dependencies = [
   "llama-cpp-python",
   "dateparser",
   "platformdirs",
+  "sqlalchemy>=2.0",
+  "alembic",
 ]
 
 [project.optional-dependencies]
