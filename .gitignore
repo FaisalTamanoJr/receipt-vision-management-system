@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# Database
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Models (downloaded, not committed)
+models/
+
+# Real receipt data (keep out of git)
+sample_receipts/*
+!sample_receipts/.gitkeep
+
+# Local config and logs
+settings.json
+*.log
+.env
+
+# Packaging output
+*.spec.bak
+*.exe
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
