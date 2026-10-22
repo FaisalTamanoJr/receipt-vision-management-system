@@ -157,22 +157,6 @@ receipt-manager/
 └── settings.json
 ```
 
-## Data Model
-
-Summary of the entities in the current ERD:
-
-| Entity | Purpose |
-|---|---|
-| `Roles` | Role names for access control |
-| `Login` | Username and credentials (store password **hashes**, never plain text) |
-| `User` | Staff profile, linked to a role and login |
-| `Receipt` | Receipt header: number, image path, purchase date (year/month/day), upload date, total, payer name/address/TIN, payment method, check number, bank branch |
-| `ReceiptItem` | Line items linked to a receipt and an inventory item (quantity, unit price, total) |
-| `InventoryItem` | Item name, product type, reorder threshold, average daily consumption, estimated stock-out date |
-| `ProductType` | Item classification |
-| `StockLedger` | Current quantity per inventory item |
-| `Supplier` | Supplier name, contact info, lead time |
-
 ## Getting Started
 
 ### Prerequisites

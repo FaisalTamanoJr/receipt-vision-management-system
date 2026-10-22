@@ -1,3 +1,13 @@
+"""
+This is the engine that provides
+the Connection/Session object. SQLAlchemy
+objects rely on this to interact with the
+database.
+
+Helpful reference:
+https://docs.sqlalchemy.org/en/20/tutorial/engine.html#tutorial-engine
+"""
+
 from sqlalchemy import create_engine
 from pathlib import Path
 from platformdirs import user_data_dir
