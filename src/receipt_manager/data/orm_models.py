@@ -29,7 +29,8 @@ from sqlalchemy import Date
 from sqlalchemy import Integer
 from sqlalchemy import Numeric
 from sqlalchemy import String
-from sqlalchemy import TIMESTAMP
+
+from sqlalchemy.types import DateTime, TypeDecorator
 
 from datetime import date
 from datetime import UTC
@@ -37,8 +38,27 @@ from datetime import datetime
 from decimal import Decimal
 
 
+class UTCDateTime(TypeDecorator):
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value: datetime | None, dialect):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            raise ValueError("attach a timezone first")
+        return value.astimezone(UTC)
+
+    def process_result_value(self, value: datetime | None, dialect):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
+
+
 class Base(DeclarativeBase):
-    type_annotation_map = {datetime: TIMESTAMP(timezone=True)}
+    type_annotation_map = {datetime: UTCDateTime()}
 
 
 # User
@@ -56,9 +76,7 @@ class Login(Base):
     __tablename__ = "login_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("user_table.id"), unique=True
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"), unique=True)
 
     username: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -95,9 +113,7 @@ class Receipt(Base):
     receipt_number: Mapped[str] = mapped_column(String(50), nullable=False)
     original_image_path: Mapped[str] = mapped_column(String(255))
     purchase_date: Mapped[date] = mapped_column(Date, nullable=False)
-    upload_date: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(UTC)
-    )
+    upload_date: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     total_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     payer_name: Mapped[str] = mapped_column(String(50), nullable=False)
     payer_address: Mapped[str | None] = mapped_column(String(255), default="")
@@ -137,9 +153,7 @@ class ProductType(Base):
 
     name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
 
-    products: Mapped[list[InventoryItem]] = relationship(
-        back_populates="product_type"
-    )
+    products: Mapped[list[InventoryItem]] = relationship(back_populates="product_type")
 
 
 class InventoryItem(Base):
@@ -173,9 +187,7 @@ class StockLedger(Base):
     )
 
     current_quantity: Mapped[int] = mapped_column(Integer, default=0)
-    last_updated: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(UTC)
-    )
+    last_updated: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
 
     inventory_item: Mapped[InventoryItem] = relationship(back_populates="stock_ledger")
 
