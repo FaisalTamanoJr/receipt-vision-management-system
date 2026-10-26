@@ -25,6 +25,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import DeclarativeBase
 
 from sqlalchemy import ForeignKey
+from sqlalchemy import MetaData
 from sqlalchemy import Date
 from sqlalchemy import Integer
 from sqlalchemy import Numeric
@@ -58,6 +59,18 @@ class UTCDateTime(TypeDecorator):
 
 
 class Base(DeclarativeBase):
+    # SQLite migrations recreate the table to change a constraint (batch mode),
+    # alembic can only find a constraint to drop if it has a name
+    # https://alembic.sqlalchemy.org/en/latest/naming.html
+    metadata = MetaData(
+        naming_convention={
+            "ix": "ix_%(column_0_label)s",
+            "uq": "uq_%(table_name)s_%(column_0_name)s",
+            "ck": "ck_%(table_name)s_%(constraint_name)s",
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "pk": "pk_%(table_name)s",
+        }
+    )
     type_annotation_map = {datetime: UTCDateTime()}
 
 
