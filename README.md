@@ -3,7 +3,6 @@
 An offline Windows desktop app that scans receipts, reads them with OCR, and lets staff sort, search, and ask questions about them.
 
 Developed by **CPECAPS Group 3** for **Device for Spine and Brain Medical**.
-Background, goals, risks, and the roadmap are in [docs/project-overview.md](docs/project-overview.md).
 
 ## Where we are
 
