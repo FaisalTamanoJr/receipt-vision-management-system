@@ -133,7 +133,7 @@ class ReceiptItem(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     receipt_id: Mapped[int] = mapped_column(ForeignKey("receipt_table.id"))
-    inventory_item_id: Mapped[int] = mapped_column(
+    inventory_item_id: Mapped[int | None] = mapped_column(
         ForeignKey("inventory_item_table.id")
     )
 
