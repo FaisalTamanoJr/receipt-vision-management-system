@@ -17,3 +17,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
+
+[project.scripts]
+receipt-manager = "receipt_manager.ui.app:main"
+
+# ship the HTML/CSS/JS pages with the package
+[tool.setuptools.package-data]
+"receipt_manager.ui" = ["web/*.html", "web/css/*", "web/js/*", "web/vendor/*"]

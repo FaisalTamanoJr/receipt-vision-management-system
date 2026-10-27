@@ -11,7 +11,8 @@ An offline Windows desktop app that scans receipts, reads them with OCR, and let
 | Login / roles | Not started |
 | OCR | In progress (Gemini test app in `ocr/`) |
 | Scanning, review screen | Not started |
-| UI (could be PySide6) | Not started |
+| UI: Home and Settings pages | Done (HTML pages in a PySide6 window) |
+| UI: Receipts, Scan, Login, Receipt details pages | Not started |
 | Chatbot | Not started |
 | Backup, packaging | Not started |
 
@@ -149,6 +150,39 @@ InventoryItemRepository().name_exists("Pedicle Screw 6.5mm")   # names are uniqu
 
 If your database gets messed up, delete `receipts.db` and run `python scripts/seed.py` again.
 
+## UI
+
+The screens are HTML/CSS/JS pages in `src/receipt_manager/ui/web/`, shown inside a PySide6 window (`ui/app.py`).
+The pages get their data from Python through `ui/bridge.py`, so they never touch the database themselves.
+
+Run the app (after the setup above):
+
+```powershell
+python -m receipt_manager.ui.app
+```
+
+You can also double-click `home.html` to open it in a browser while working on the design. It uses sample data there, since there's no Python behind it.
+
+**Adding a page** (e.g. `receipts.html`)
+
+1. Put it in `ui/web/`. In its `<head>` add, in this order:
+   ```html
+   <link rel="stylesheet" href="css/styles.css">
+   <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+   <script src="js/common.js"></script>
+   ```
+   `common.js` gives you dark mode, the icons (`<use href="#i-file"/>`), `App.toast()` and `App.peso()`.
+2. Put its script in `ui/web/js/`. Load libraries from `ui/web/vendor/`, not from a CDN, because the app has to work offline.
+3. If it needs data, add a `@Slot` method to `Bridge` in `ui/bridge.py` that calls a repository and returns JSON. Call it from JS with:
+   ```js
+   const stats = await App.api('getStats');           // null when opened in a plain browser
+   const proj  = await App.api('getProjection', 12);  // arguments are passed through
+   ```
+
+The nav links already point to `receipts.html`, `scan.html` and `login.html`. Still to do (marked `TODO` in `js/settings.js` and `js/common.js`): password and username changes, sign-out, and deleting scanned image files. These wait on login and scanning.
+
+Settings are saved to `settings.json` next to the database.
+
 ## OCR (work in progress)
 
 `src/receipt_manager/ocr/receipt_extractor.py` is a standalone Tkinter app for testing OCR on handwritten Philippine collection receipts. It isn't hooked into the main app yet: it sends images to Google Gemini (online), while the real app is meant to be offline.
@@ -175,6 +209,10 @@ In Command Prompt use `set GEMINI_API_KEY=your_key`. On Linux, `export GEMINI_AP
 src/receipt_manager/
 ├── core/          # dataclasses the rest of the app uses (no database code)
 ├── ocr/           # OCR (WIP: Gemini test app)
+├── ui/
+│   ├── app.py          # main window, run with python -m receipt_manager.ui.app
+│   ├── bridge.py       # what the pages can ask Python for
+│   └── web/            # the pages: *.html, css/, js/, vendor/ (Chart.js)
 └── data/
     ├── orm_models.py   # database tables
     ├── mappers.py      # converts between tables and dataclasses
@@ -187,7 +225,7 @@ scripts/examples.py  # how to use the repositories
 tests/               # (empty for now)
 ```
 
-Planned folders: `scanning/`, `chat/`, `ui/`.
+Planned folders: `scanning/`, `chat/`.
 
 ## Before you push
 

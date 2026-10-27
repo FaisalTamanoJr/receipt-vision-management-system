@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings – Receipt Manager</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script src="js/common.js"></script>
+</head>
+<body>
+  <div class="settings">
+    <aside>
+      <a class="back" href="home.html"><svg class="i"><use href="#i-back"/></svg>Back to Home</a>
+      <div class="menu" role="tablist" aria-orientation="vertical">
+        <button role="tab" data-tab="general"><svg class="i"><use href="#i-gear"/></svg>General</button>
+        <button role="tab" data-tab="appearance"><svg class="i"><use href="#i-moon"/></svg>Appearance</button>
+        <button role="tab" data-tab="security"><svg class="i"><use href="#i-lock"/></svg>Security and Sign-in</button>
+        <button role="tab" data-tab="llm"><svg class="i"><use href="#i-chat"/></svg>LLM</button>
+        <button role="tab" data-tab="data"><svg class="i"><use href="#i-database"/></svg>Data Management</button>
+        <button role="tab" data-tab="notifications"><svg class="i"><use href="#i-bell"/></svg>Notifications</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- General -->
+      <section class="panel" id="general" role="tabpanel" hidden>
+        <h1>General</h1>
+        <div class="card">
+          <div class="row"><svg class="i ic"><use href="#i-user"/></svg>
+            <div class="txt"><b>Display name</b><small>Shown in the home page greeting</small></div>
+            <input type="text" id="username" maxlength="40" aria-label="Display name"></div>
+          <div class="row"><svg class="i ic"><use href="#i-calendar"/></svg>
+            <div class="txt"><b>Date format</b><small>How dates appear in receipt lists</small></div>
+            <select id="dateFormat" aria-label="Date format"><option>MMM DD, YYYY</option><option>DD/MM/YYYY</option><option>YYYY-MM-DD</option></select></div>
+          <div class="row"><svg class="i ic"><use href="#i-tag"/></svg>
+            <div class="txt"><b>Currency</b><small>Philippine peso (₱)</small></div></div>
+        </div>
+      </section>
+
+      <section class="panel" id="appearance" role="tabpanel" hidden>
+        <h1>Appearance</h1>
+        <div class="card">
+          <div class="row"><svg class="i ic"><use href="#i-moon"/></svg>
+            <div class="txt"><b>Dark mode</b><small>Use a darker color scheme</small></div>
+            <label class="switch"><input type="checkbox" id="darkMode" aria-label="Dark mode"><span></span></label></div>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section class="panel" id="security" role="tabpanel" hidden>
+        <h1>Security and Sign-in</h1>
+        <div class="card">
+          <div class="row"><svg class="i ic"><use href="#i-key"/></svg>
+            <div class="txt"><b>Password</b><small id="pwDate">Last changed: never</small></div>
+            <button class="btn ghost" id="pwOpen">Change</button></div>
+          <div class="row"><svg class="i ic"><use href="#i-user"/></svg>
+            <div class="txt"><b>Username</b><small id="unameShow"></small></div>
+            <button class="btn ghost" id="unOpen">Change</button></div>
+          <div class="row"><svg class="i ic"><use href="#i-clock"/></svg>
+            <div class="txt"><b>Auto sign-out</b><small>Sign out after inactivity</small></div>
+            <select id="autoSignOut" aria-label="Auto sign-out"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="0">Never</option></select></div>
+        </div>
+      </section>
+
+      <!-- LLM -->
+      <section class="panel" id="llm" role="tabpanel" hidden>
+        <h1>LLM</h1>
+        <div class="card">
+          <div class="row"><svg class="i ic"><use href="#i-chat"/></svg>
+            <div class="txt"><b>Receipt chatbot</b><small>Ask questions about your receipts</small></div>
+            <label class="switch"><input type="checkbox" id="llmEnabled" aria-label="Receipt chatbot"><span></span></label></div>
+          <div class="row"><svg class="i ic"><use href="#i-database"/></svg>
+            <div class="txt"><b>Model</b><small>Used to answer chatbot questions</small></div>
+            <select id="llmModel" aria-label="Model"><option value="claude-sonnet-5-5">Claude Sonnet 5.5</option><option value="claude-haiku-5-5">Claude Haiku 5.5</option><option value="claude-opus-5-5">Claude Opus 5.5</option></select></div>
+        </div>
+      </section>
+
+      <!-- Data -->
+      <section class="panel" id="data" role="tabpanel" hidden>
+        <h1>Data Management</h1>
+        <div class="card">
+          <div class="row stack"><svg class="i ic"><use href="#i-folder"/></svg>
+            <div class="txt"><b>File location</b><small>Where scanned receipts are saved</small></div>
+            <div class="field"><input type="text" id="storagePath" aria-label="File location"><button class="btn ghost" id="pathSave">Save</button></div></div>
+          <div class="row stack"><svg class="i ic"><use href="#i-database"/></svg>
+            <div class="txt"><b>Storage used</b><small>2.4 GB of 10 GB</small></div>
+            <div class="bar" role="img" aria-label="24 percent used"><i></i></div></div>
+          <div class="row"><svg class="i ic"><use href="#i-trash"/></svg>
+            <div class="txt"><b>Clear files</b><small>Permanently delete all saved receipts</small></div>
+            <button class="btn danger" id="clearOpen">Clear</button></div>
+        </div>
+      </section>
+
+      <!-- Notifs -->
+      <section class="panel" id="notifications" role="tabpanel" hidden>
+        <h1>Notifications</h1>
+        <div class="card">
+          <div class="row"><svg class="i ic"><use href="#i-bell"/></svg>
+            <div class="txt"><b>Scan finished</b><small>When a receipt has been processed</small></div>
+            <label class="switch"><input type="checkbox" id="notifyScan" aria-label="Scan finished"><span></span></label></div>
+          <div class="row"><svg class="i ic"><use href="#i-file"/></svg>
+            <div class="txt"><b>Needs review</b><small>When the text reading looks uncertain</small></div>
+            <label class="switch"><input type="checkbox" id="notifyReview" aria-label="Needs review"><span></span></label></div>
+          <div class="row"><svg class="i ic"><use href="#i-database"/></svg>
+            <div class="txt"><b>Storage almost full</b><small>When you pass 90% of your space</small></div>
+            <label class="switch"><input type="checkbox" id="notifyStorage" aria-label="Storage almost full"><span></span></label></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="pwDlg">
+    <h2>Change password</h2>
+    <label>Current password<input type="password" id="pwCur" autocomplete="current-password"></label>
+    <label>New password<input type="password" id="pwNew" autocomplete="new-password"></label>
+    <label>Confirm new password<input type="password" id="pwCon" autocomplete="new-password"></label>
+    <p class="err" id="pwErr" role="alert"></p>
+    <div class="actions"><button class="btn ghost" data-close>Cancel</button><button class="btn accent" id="pwSave">Save password</button></div>
+  </dialog>
+
+  <dialog id="unDlg">
+    <h2>Change username</h2>
+    <label>New username<input type="text" id="unNew" maxlength="40" autocomplete="username"></label>
+    <p class="err" id="unErr" role="alert"></p>
+    <div class="actions"><button class="btn ghost" data-close>Cancel</button><button class="btn accent" id="unSave">Save username</button></div>
+  </dialog>
+
+  <dialog id="clearDlg">
+    <h2>Clear all files?</h2>
+    <p class="sub">This permanently deletes every saved receipt and can't be undone. Type DELETE to continue.</p>
+    <label>Confirmation<input type="text" id="clearConfirm" autocomplete="off"></label>
+    <div class="actions"><button class="btn ghost" data-close>Cancel</button><button class="btn danger" id="clearGo" disabled>Clear files</button></div>
+  </dialog>
+  <script src="js/settings.js"></script>
+</body>
+</html>
