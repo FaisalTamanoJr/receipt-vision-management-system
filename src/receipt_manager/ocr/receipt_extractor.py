@@ -8,7 +8,7 @@ Pick ONE backend (set the OCR_BACKEND variable below, or the env var of same nam
 
   "gemini" (default) - Google Gemini free tier. Best accuracy on handwriting,
       no credit card. Get a key at https://aistudio.google.com/apikey then:
-          pip install pillow google-genai
+          pip install -e .   (pillow and google-genai are in pyproject.toml)
           set GEMINI_API_KEY=your_key        (Mac/Linux: export GEMINI_API_KEY=...)
       Note: on the free tier Google may use your inputs to improve its models,
       so the receipt images (names, TINs) leave your computer.

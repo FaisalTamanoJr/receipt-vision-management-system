@@ -9,7 +9,8 @@ An offline Windows desktop app that scans receipts, reads them with OCR, and let
 | Database (tables, migrations, sample data) | Done |
 | Repositories (add, get, update, delete, filter, sort) | Done |
 | Login / roles | Not started |
-| Scanning, OCR, review screen | Not started |
+| OCR | In progress (Gemini test app in `ocr/`) |
+| Scanning, review screen | Not started |
 | UI (could be PySide6) | Not started |
 | Chatbot | Not started |
 | Backup, packaging | Not started |
@@ -148,18 +149,17 @@ InventoryItemRepository().name_exists("Pedicle Screw 6.5mm")   # names are uniqu
 
 If your database gets messed up, delete `receipts.db` and run `python scripts/seed.py` again.
 
-## OCR prototype (Gemini)
+## OCR (work in progress)
 
-`prototypes/receipt_extractor.py` is a standalone Tkinter app by Enzo for testing OCR on handwritten Philippine collection receipts. It isn't part of the main app yet: it sends images to Google Gemini (online), while the real app is meant to be offline.
+`src/receipt_manager/ocr/receipt_extractor.py` is a standalone Tkinter app for testing OCR on handwritten Philippine collection receipts. It isn't hooked into the main app yet: it sends images to Google Gemini (online), while the real app is meant to be offline.
 
 Workflow: upload image(s), the fields get filled in, fix anything wrong, **Save Record** (appends to `receipts.csv`), and the next image loads.
 
-Install its extra packages and set your own Gemini key (free at https://aistudio.google.com/apikey). In PowerShell:
+Its packages are installed by the normal setup. Set your own Gemini key (free at https://aistudio.google.com/apikey) and run it. In PowerShell:
 
 ```powershell
-pip install pillow google-genai
 $env:GEMINI_API_KEY = "your_key"
-python prototypes\receipt_extractor.py
+python -m receipt_manager.ocr.receipt_extractor
 ```
 
 In Command Prompt use `set GEMINI_API_KEY=your_key`. On Linux, `export GEMINI_API_KEY=your_key` (fish: `set -x GEMINI_API_KEY your_key`).
@@ -174,6 +174,7 @@ In Command Prompt use `set GEMINI_API_KEY=your_key`. On Linux, `export GEMINI_AP
 ```
 src/receipt_manager/
 ├── core/          # dataclasses the rest of the app uses (no database code)
+├── ocr/           # OCR (WIP: Gemini test app)
 └── data/
     ├── orm_models.py   # database tables
     ├── mappers.py      # converts between tables and dataclasses
@@ -183,11 +184,10 @@ src/receipt_manager/
     └── migrations/     # migration files
 scripts/seed.py      # sample data
 scripts/examples.py  # how to use the repositories
-prototypes/          # standalone experiments (Gemini OCR extractor)
 tests/               # (empty for now)
 ```
 
-Planned folders: `scanning/`, `ocr/`, `chat/`, `ui/`.
+Planned folders: `scanning/`, `chat/`, `ui/`.
 
 ## Before you push
 
