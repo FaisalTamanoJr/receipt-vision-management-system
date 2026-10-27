@@ -19,7 +19,6 @@ Pick ONE backend (set the OCR_BACKEND variable below, or the env var of same nam
           pip install pillow ollama
 """
 
-import base64
 import csv
 import io
 import json
@@ -31,7 +30,6 @@ from tkinter import filedialog, messagebox, ttk
 
 from PIL import Image
 
-os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6I8QIoXNw56z-jOIikbnKny7XDkNU9mE4dFXNTGx7SXeQ"
 OCR_BACKEND = os.environ.get("OCR_BACKEND", "gemini")  # "gemini" or "ollama"
 # Comma-separated list of models, tried in order if one is overloaded/unavailable.
 GEMINI_MODELS = [m.strip() for m in os.environ.get(
@@ -82,9 +80,13 @@ def load_resized(path, size=1800):
 
 def ocr_gemini(path, retries=4):
     import time
+
     from google import genai
 
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY is not set")
+    client = genai.Client(api_key=api_key)
     img = load_resized(path)
     last_err = None
     for model in GEMINI_MODELS:
@@ -96,7 +98,7 @@ def ocr_gemini(path, retries=4):
                     config={"response_mime_type": "application/json"},
                 )
                 return parse_json(resp.text), model
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - the SDK raises many error types
                 last_err = e
                 msg = str(e)
                 temporary = any(s in msg for s in ("503", "UNAVAILABLE", "429", "RESOURCE_EXHAUSTED", "500", "504"))
@@ -204,8 +206,9 @@ class App:
         try:
             result, backend = extract(path)
             self.root.after(0, lambda: self.fill(path, result, backend))
-        except Exception as e:
-            self.root.after(0, lambda: self.set_status(f"OCR failed: {e} (fill in manually)"))
+        except Exception as e:  # noqa: BLE001 - show any failure, user fills in manually
+            msg = f"OCR failed: {e} (fill in manually)"
+            self.root.after(0, lambda: self.set_status(msg))
 
     def fill(self, path, result, backend):
         if path != self.current:

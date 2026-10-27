@@ -20,6 +20,7 @@ models/
 # Real receipt data (keep out of git)
 sample_receipts/*
 !sample_receipts/.gitkeep
+receipts.csv
 
 # Local config and logs
 settings.json

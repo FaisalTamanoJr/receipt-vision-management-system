@@ -148,6 +148,27 @@ InventoryItemRepository().name_exists("Pedicle Screw 6.5mm")   # names are uniqu
 
 If your database gets messed up, delete `receipts.db` and run `python scripts/seed.py` again.
 
+## OCR prototype (Gemini)
+
+`prototypes/receipt_extractor.py` is a standalone Tkinter app by Enzo for testing OCR on handwritten Philippine collection receipts. It isn't part of the main app yet: it sends images to Google Gemini (online), while the real app is meant to be offline.
+
+Workflow: upload image(s), the fields get filled in, fix anything wrong, **Save Record** (appends to `receipts.csv`), and the next image loads.
+
+Install its extra packages and set your own Gemini key (free at https://aistudio.google.com/apikey). In PowerShell:
+
+```powershell
+pip install pillow google-genai
+$env:GEMINI_API_KEY = "your_key"
+python prototypes\receipt_extractor.py
+```
+
+In Command Prompt use `set GEMINI_API_KEY=your_key`. On Linux, `export GEMINI_API_KEY=your_key` (fish: `set -x GEMINI_API_KEY your_key`).
+
+- Don't put the key in the code. Each person uses their own.
+- On Gemini's free tier, Google may use the images to improve its models, so names and TINs leave your computer. Use test receipts.
+- There's also a local Ollama option (`pip install ollama`, `ollama pull qwen2.5vl:7b`, then set `OCR_BACKEND=ollama`). It works offline but is slower and less accurate, and isn't fully built out.
+- `receipts.csv` is written to the folder you run it from and is ignored by git.
+
 ## Project layout
 
 ```
@@ -162,6 +183,7 @@ src/receipt_manager/
     └── migrations/     # migration files
 scripts/seed.py      # sample data
 scripts/examples.py  # how to use the repositories
+prototypes/          # standalone experiments (Gemini OCR extractor)
 tests/               # (empty for now)
 ```
 
