@@ -1,0 +1,15 @@
+role,page,allowed
+Admin,upload,1
+Admin,search,1
+Admin,chatbot,1
+Admin,backup,1
+Admin,audit_log,1
+Admin,user_management,1
+Admin,data_management,1
+Staff,upload,1
+Staff,search,0
+Staff,chatbot,0
+Staff,backup,0
+Staff,audit_log,0
+Staff,user_management,0
+Staff,data_management,0

@@ -1,0 +1,11 @@
+timestamp,test_case,type,result,measured_value,unit,threshold,notes
+2026-10-28T13:51:16.492+08:00,TC-01,FR,PASS,1,bool,stored == original and displayable,"stored as images/CR-0004_2025-05-14_original.jpg; byte-identical copy, decodes at 1920x1080 px after applying EXIF orientation 8"
+2026-10-28T13:51:16.492+08:00,TC-02,FR,FAIL,40,lines,text produced AND saved with the receipt record,"text was extracted, but the app has no place to store it with the record (no extracted-text column in receipt_table and OCR isn't wired into the app); the test saved it next to the record as extracted/CR-0004_2025-05-14_extracted.txt"
+2026-10-28T13:51:16.677+08:00,TC-03,FR,PASS,6,queries correct,6/6,"year, month and day filters each tested twice"
+2026-10-28T13:51:16.677+08:00,TC-04,FR,FAIL,0,bool,image AND text shown for the same record,"image is linked to the record; extracted text is only linked by filename because the record can't hold it, and the Receipt details page isn't built yet"
+2026-10-28T13:51:16.779+08:00,TC-05,NFR,FAIL,13,checks passed,14/14,page-level role checks work; failed: staff:bridge_getStats_receipt_totals (Home page stats like total receipt count and amount are returned to any logged-in role without a permission check)
+2026-10-28T13:51:16.779+08:00,TC-06,NFR,PASS,0,external transmissions,0,covers import -> OCR (RapidOCR) -> save; the Gemini test app in ocr/ was NOT run and would send images to Google
+2026-10-28T13:51:22.861+08:00,TC-07,NFR,FAIL,80.37,%,>= 90.0 (provisional),"mean character accuracy of handwritten fields; batch of 1 receipt, exact field match 12.5%, printed text 100.0%"
+2026-10-28T13:51:25.124+08:00,TC-08,NFR,PASS,33.89,ms,<= 1000.0 (provisional),"p95 date-search response time; 200 searches over 5004 receipts, max 37.5 ms"
+2026-10-28T13:51:26.035+08:00,TC-09,NFR,PASS,18.86,ms,<= 2000.0 (provisional),"p95 time to open record + render image and text; Qt split view stand-in since the Receipt details page isn't built, mean 17.4 ms"
+2026-10-28T13:51:26.035+08:00,TC-10,NFR,PASS,29.07,GB,>= 10.0 (provisional),"free space on the receipt storage drive; about 115,503 receipts at 252 KB each; no space is reserved/allocated for the app"

@@ -1,0 +1,15 @@
+timestamp,user,action,expected,observed,result,detail
+2026-10-28T13:51:16.710+08:00,admin,login,allowed,allowed,PASS,
+2026-10-28T13:51:16.710+08:00,admin,open_search_page,allowed,allowed,PASS,
+2026-10-28T13:51:16.710+08:00,admin,require_search,allowed,allowed,PASS,
+2026-10-28T13:51:16.711+08:00,admin,require_data_management,allowed,allowed,PASS,
+2026-10-28T13:51:16.713+08:00,admin,bridge_getStats_receipt_totals,allowed,allowed,PASS,"{'total': 4, 'month': 1, 'amount': '[redacted]', 'storage': '104.0 KB'}"
+2026-10-28T13:51:16.744+08:00,staff,login,allowed,allowed,PASS,
+2026-10-28T13:51:16.744+08:00,staff,open_search_page,blocked,blocked,PASS,False
+2026-10-28T13:51:16.744+08:00,staff,require_search,blocked,blocked,PASS,PermissionDenied
+2026-10-28T13:51:16.744+08:00,staff,require_data_management,blocked,blocked,PASS,PermissionDenied
+2026-10-28T13:51:16.744+08:00,staff,bridge_clearReceipts,blocked,blocked,PASS,False
+2026-10-28T13:51:16.745+08:00,staff,bridge_getStats_receipt_totals,blocked,allowed,FAIL,"{'total': 4, 'month': 1, 'amount': '[redacted]', 'storage': '104.0 KB'}"
+2026-10-28T13:51:16.778+08:00,staff,login_wrong_password,blocked,blocked,PASS,InvalidCredentials
+2026-10-28T13:51:16.779+08:00,former,login_deactivated,blocked,blocked,PASS,InvalidCredentials
+2026-10-28T13:51:16.779+08:00,not_logged_in,open_search_page,blocked,blocked,PASS,False

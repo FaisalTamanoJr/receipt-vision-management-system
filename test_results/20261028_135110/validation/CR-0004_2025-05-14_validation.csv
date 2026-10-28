@@ -1,0 +1,15 @@
+timestamp,receipt_id,kind,field,edit_distance_chars,ground_truth_chars,char_accuracy_pct,exact_match
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,date,3,9,66.67,0
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,received_from,1,14,92.86,0
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,address,0,6,100.0,1
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,sum_of,2,23,91.3,0
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,pesos,1,5,80.0,0
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,payment_for,6,22,72.73,0
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,particulars,6,22,72.73,0
+2026-10-28T13:51:22.861+08:00,CR-0004,handwritten,amount,2,6,66.67,0
+2026-10-28T13:51:22.861+08:00,CR-0004,printed,receipt_no,0,6,100.0,1
+2026-10-28T13:51:22.861+08:00,CR-0004,printed,business_name,0,32,100.0,1
+2026-10-28T13:51:22.861+08:00,CR-0004,printed,title,0,17,100.0,1
+2026-10-28T13:51:22.861+08:00,CR-0004,printed,vat_tin,0,23,100.0,1
+2026-10-28T13:51:22.861+08:00,CR-0004,printed,city,0,33,100.0,1
+2026-10-28T13:51:22.861+08:00,CR-0004,printed,footer,0,42,100.0,1
