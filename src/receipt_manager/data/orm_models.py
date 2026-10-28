@@ -24,6 +24,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import DeclarativeBase
 
+from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import MetaData
 from sqlalchemy import Date
@@ -31,6 +32,7 @@ from sqlalchemy import Integer
 from sqlalchemy import Numeric
 from sqlalchemy import String
 
+from sqlalchemy.sql import expression
 from sqlalchemy.types import DateTime, TypeDecorator
 
 from datetime import date
@@ -108,6 +110,11 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(String(50), unique=True)
     birthday: Mapped[date | None] = mapped_column(Date)
     date_created: Mapped[date] = mapped_column(Date, default=date.today)
+    # deactivated users can't log in, but keep their receipts and history
+    # server_default so the rows that existed before this column get True
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=expression.true()
+    )
 
     role: Mapped[Role] = relationship(back_populates="users")
     login: Mapped[Login | None] = relationship(

@@ -8,7 +8,7 @@ An offline Windows desktop app that scans receipts, reads them with OCR, and let
 |---|---|
 | Database (tables, migrations, sample data) | Done |
 | Repositories (add, get, update, delete, filter, sort) | Done |
-| Login / roles | Not started |
+| Login / roles | Done (login dialog, Admin and Staff roles, `auth/`) |
 | OCR | In progress (Gemini test app in `ocr/`) |
 | Scanning, review screen | Not started |
 | UI: Home and Settings pages | Done (HTML pages in a PySide6 window) |
@@ -43,7 +43,15 @@ The database is not in git. Everyone gets their own copy at:
 - Windows: `%LOCALAPPDATA%\ReceiptManager\receipts.db`
 - Linux: `~/.local/share/ReceiptManager/receipts.db`
 
+Before Oct 28, 2026 the Windows copy was in `%LOCALAPPDATA%\ReceiptManager\ReceiptManager\` by mistake. If you have one there, run `python scripts\seed.py` to make a new one in the right place, then delete the old folder.
+
 Sample logins from the seed: `admin` / `admin123` and `staff` / `staff123`.
+
+To add your own account:
+
+```powershell
+python scripts\create_user.py
+```
 
 ## Using the database
 
@@ -179,7 +187,36 @@ You can also double-click `home.html` to open it in a browser while working on t
    const proj  = await App.api('getProjection', 12);  // arguments are passed through
    ```
 
-The nav links already point to `receipts.html`, `scan.html` and `login.html`. Still to do (marked `TODO` in `js/settings.js` and `js/common.js`): password and username changes, sign-out, and deleting scanned image files. These wait on login and scanning.
+The nav links already point to `receipts.html` and `scan.html`. Still to do (marked `TODO` in `js/settings.js`): moving files when the storage folder changes, and deleting scanned image files. These wait on scanning.
+
+## Login and roles
+
+The app opens a login dialog (`ui/login_dialog.py`) before the main window. Signing out from the Home page shows it again.
+
+`auth/service.py` has `AuthService`, which the window keeps for the whole session:
+
+```python
+from receipt_manager.auth.permissions import Page
+
+auth.current_user            # the User dataclass, None when logged out
+auth.current_role            # RoleName.ADMIN or RoleName.STAFF
+auth.can_access(Page.SEARCH) # use this to decide whether to show a page
+auth.require(Page.SEARCH)    # raises PermissionDenied, use it before changing data
+```
+
+Which role can open which page is in `ROLE_PAGES` in `auth/permissions.py`. Admin can open everything, Staff only the upload page.
+Clearing all receipts (Settings > Data Management) needs `Page.DATA_MANAGEMENT`, so only Admin can do it.
+
+To stop someone from logging in without deleting them (their receipts still point to them), set `is_active` to `False`:
+
+```python
+user = UserRepository().get_by_username("staff")
+user.is_active = False
+UserRepository().update(user)
+```
+The pages can ask for the logged in user with `await App.api('getCurrentUser')`, which returns the username, full name, role and allowed pages.
+
+Passwords are hashed with argon2 (`auth/security.py`). Databases seeded before this still work, their old hashes are upgraded on the next login.
 
 Settings are saved to `settings.json` next to the database.
 
@@ -208,10 +245,12 @@ In Command Prompt use `set GEMINI_API_KEY=your_key`. On Linux, `export GEMINI_AP
 ```
 src/receipt_manager/
 ├── core/          # dataclasses the rest of the app uses (no database code)
+├── auth/          # login, password hashing, which role can open which page
 ├── ocr/           # OCR (WIP: Gemini test app)
 ├── ui/
 │   ├── app.py          # main window, run with python -m receipt_manager.ui.app
 │   ├── bridge.py       # what the pages can ask Python for
+│   ├── login_dialog.py # shown before the main window
 │   └── web/            # the pages: *.html, css/, js/, vendor/ (Chart.js)
 └── data/
     ├── orm_models.py   # database tables
@@ -221,6 +260,7 @@ src/receipt_manager/
     ├── migrate.py      # runs migrations
     └── migrations/     # migration files
 scripts/seed.py      # sample data
+scripts/create_user.py  # add an admin or staff account
 scripts/examples.py  # how to use the repositories
 tests/               # (empty for now)
 ```

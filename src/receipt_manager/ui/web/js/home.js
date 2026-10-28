@@ -76,6 +76,10 @@ async function renderProjection() {
 document.addEventListener('DOMContentLoaded', () => {
   const user = App.getSettings().username;
   $('name').textContent = user && user !== 'User' ? ' ' + user : '';
+  /* no display name set, greet the logged in user instead */
+  if (!user || user === 'User') {
+    App.api('getCurrentUser').then((u) => { if (u) $('name').textContent = ' ' + (u.fullname || u.username); });
+  }
   $('signOut').addEventListener('click', App.signOut);
   $('projMonths').addEventListener('change', renderProjection);
   renderStats();

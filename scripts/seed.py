@@ -13,21 +13,18 @@ Default logins (change these before handing the app to anyone):
     staff / staff123
 """
 
-import hashlib
-import os
 from datetime import date
 from decimal import Decimal
 
+from receipt_manager.auth.permissions import RoleName
+from receipt_manager.auth.service import create_user
 from receipt_manager.core.models import (
     InventoryItem,
-    Login,
     ProductType,
     Receipt,
     ReceiptItem,
-    Role,
     StockLedger,
     Supplier,
-    User,
 )
 from receipt_manager.data.migrate import upgrade
 from receipt_manager.data.repository import (
@@ -40,14 +37,6 @@ from receipt_manager.data.repository import (
 )
 
 
-# placeholder until the auth service exists, it has to verify with the same format:
-# "scrypt$<salt hex>$<hash hex>"
-def hash_password(password: str) -> str:
-    salt = os.urandom(16)
-    digest = hashlib.scrypt(password.encode(), salt=salt, n=2**14, r=8, p=1)
-    return f"scrypt${salt.hex()}${digest.hex()}"
-
-
 # returns the existing row's id or adds a new one
 def named(repo, obj) -> int:
     existing = repo.get_by_name(obj.name)
@@ -57,27 +46,28 @@ def named(repo, obj) -> int:
 
 
 def seed_users(roles: RoleRepository, users: UserRepository) -> int:
-    admin_role = named(roles, Role(name="Admin"))
-    staff_role = named(roles, Role(name="Staff"))
-
     accounts = [
-        (admin_role, "admin", "admin123", "System Administrator", "admin@example.com"),
-        (staff_role, "staff", "staff123", "Juan Dela Cruz", "staff@example.com"),
+        (
+            RoleName.ADMIN,
+            "admin",
+            "admin123",
+            "System Administrator",
+            "admin@example.com",
+        ),
+        (RoleName.STAFF, "staff", "staff123", "Juan Dela Cruz", "staff@example.com"),
     ]
     admin_id = None
-    for role_id, username, password, fullname, email in accounts:
+    for role, username, password, fullname, email in accounts:
         user = users.get_by_username(username)
         if user is None:
-            user = users.add(
-                User(
-                    role_id=role_id,
-                    fullname=fullname,
-                    email=email,
-                    # user_id is filled in by SQLAlchemy when the user is inserted
-                    login=Login(
-                        user_id=0, username=username, password=hash_password(password)
-                    ),
-                )
+            user = create_user(
+                username,
+                password,
+                role,
+                fullname=fullname,
+                email=email,
+                users=users,
+                roles=roles,
             )
         if username == "admin":
             admin_id = user.id

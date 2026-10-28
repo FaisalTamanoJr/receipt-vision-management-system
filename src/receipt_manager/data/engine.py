@@ -18,7 +18,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
 # %LOCALAPPDATA%\ReceiptManager\ in Windows, ~/.local/share/ReceiptManager/ in Linux
-data_dir = Path(user_data_dir("ReceiptManager"))
+# appauthor=False, otherwise Windows adds a second ReceiptManager\ folder for the "company"
+data_dir = Path(user_data_dir("ReceiptManager", appauthor=False))
 data_dir.mkdir(parents=True, exist_ok=True)
 
 

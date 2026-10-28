@@ -108,6 +108,7 @@ _USER_FIELDS = (
     "email",
     "birthday",
     "date_created",
+    "is_active",
 )
 
 

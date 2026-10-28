@@ -34,12 +34,22 @@ $('username').addEventListener('change', (e) => {
   App.saveSettings({ username: e.target.value.trim() || 'User' }); renderSecurity(); App.toast('Saved');
 });
 
-/* Security */
+/* Security. In the app the login name comes from Python, in a browser from settings. */
+let loginName = s.username;
+App.api('getCurrentUser').then((u) => {
+  if (!u) return;
+  loginName = u.username; renderSecurity();
+  /* the clear button is also checked in Python, hiding it just avoids a dead end */
+  if (!u.pages.includes('data_management')) {
+    document.querySelector('[data-tab="data"]').hidden = true;
+    if (!$('data').hidden) show('general');
+  }
+});
 function renderSecurity() {
   s = App.getSettings();
   $('pwDate').textContent = 'Last changed: ' + (s.passwordChanged
     ? new Date(s.passwordChanged).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'never');
-  $('unameShow').textContent = s.username;
+  $('unameShow').textContent = loginName;
 }
 renderSecurity();
 
@@ -48,23 +58,26 @@ document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('cli
 $('pwOpen').addEventListener('click', () => {
   ['pwCur', 'pwNew', 'pwCon'].forEach((i) => ($(i).value = '')); $('pwErr').textContent = ''; $('pwDlg').showModal();
 });
-$('pwSave').addEventListener('click', () => {
+$('pwSave').addEventListener('click', async () => {
   const cur = $('pwCur').value, nw = $('pwNew').value, con = $('pwCon').value;
   if (!cur) return ($('pwErr').textContent = 'Enter your current password.');
   if (nw.length < 8) return ($('pwErr').textContent = 'Use at least 8 characters for the new password.');
   if (nw === cur) return ($('pwErr').textContent = 'Choose a password you haven\'t used before.');
   if (nw !== con) return ($('pwErr').textContent = 'The new passwords don\'t match.');
-  /* TODO (auth): send cur + nw to the auth API; show its error if the current password is wrong. */
+  const res = await App.api('changePassword', cur, nw);
+  if (res && res.error) return ($('pwErr').textContent = res.error);
   App.saveSettings({ passwordChanged: new Date().toISOString() });
   $('pwDlg').close(); renderSecurity(); App.toast('Password changed');
 });
 
 $('unOpen').addEventListener('click', () => { $('unNew').value = ''; $('unErr').textContent = ''; $('unDlg').showModal(); });
-$('unSave').addEventListener('click', () => {
+$('unSave').addEventListener('click', async () => {
   const v = $('unNew').value.trim();
   if (v.length < 3) return ($('unErr').textContent = 'Use at least 3 characters.');
-  /* TODO (auth): update the username through the auth API. */
-  App.saveSettings({ username: v }); $('username').value = v;
+  const res = await App.api('changeUsername', v);
+  if (res && res.error) return ($('unErr').textContent = res.error);
+  if (!res) { App.saveSettings({ username: v }); $('username').value = v; }  /* browser only */
+  loginName = v;
   $('unDlg').close(); renderSecurity(); App.toast('Username changed');
 });
 
@@ -82,5 +95,6 @@ $('clearGo').addEventListener('click', async () => {
   /* Deletes the receipt records; TODO (database): also delete the scanned image files. */
   const res = await App.api('clearReceipts');
   $('clearDlg').close();
+  if (res && res.error) return App.toast(res.error);
   App.toast(res ? `${res.deleted} receipts deleted` : 'All files cleared');
 });

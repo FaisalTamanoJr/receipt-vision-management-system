@@ -17,6 +17,13 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, Slot
 
+from receipt_manager.auth.permissions import Page
+from receipt_manager.auth.service import (
+    AuthService,
+    InvalidCredentials,
+    PermissionDenied,
+    UsernameTaken,
+)
 from receipt_manager.data.engine import data_dir
 from receipt_manager.data.repository import ReceiptFilter, ReceiptRepository
 
@@ -76,9 +83,14 @@ def _add_months(year: int, month: int, n: int) -> tuple[int, int]:
 class Bridge(QObject):
     # emitted after save_settings() so the window can refresh the injected settings
     settingsChanged = Signal(str)
+    # emitted when the page asks to sign out, the window shows the login dialog again
+    signedOut = Signal()
 
-    def __init__(self, receipts: ReceiptRepository | None = None) -> None:
+    def __init__(
+        self, auth: AuthService, receipts: ReceiptRepository | None = None
+    ) -> None:
         super().__init__()
+        self._auth = auth
         self._receipts = receipts or ReceiptRepository()
 
     def _month_total(self, year: int, month: int) -> Decimal:
@@ -175,7 +187,47 @@ class Bridge(QObject):
     # deletes every receipt record, the scanned image files are left alone for now
     @Slot(result=str)
     def clearReceipts(self) -> str:
+        try:
+            self._auth.require(Page.DATA_MANAGEMENT)
+        except PermissionDenied:
+            return json.dumps({"error": "Only an admin can clear the receipts."})
         deleted = 0
         for r in self._receipts.list_all():
             deleted += self._receipts.delete(r.id)
         return json.dumps({"deleted": deleted})
+
+    @Slot(result=str)
+    def getCurrentUser(self) -> str:
+        user = self._auth.current_user
+        if user is None:
+            return json.dumps(None)
+        return json.dumps(
+            {
+                "username": user.login.username,
+                "fullname": user.fullname,
+                "role": self._auth.current_role.value,
+                "pages": [p.value for p in Page if self._auth.can_access(p)],
+            }
+        )
+
+    # both return {"error": "..."} when the change is refused, so the page can show it
+    @Slot(str, str, result=str)
+    def changePassword(self, current: str, new: str) -> str:
+        try:
+            self._auth.change_password(current, new)
+        except InvalidCredentials:
+            return json.dumps({"error": "Your current password is wrong."})
+        return json.dumps({})
+
+    @Slot(str, result=str)
+    def changeUsername(self, new: str) -> str:
+        try:
+            self._auth.change_username(new)
+        except UsernameTaken:
+            return json.dumps({"error": "That username is already taken."})
+        return json.dumps({})
+
+    @Slot(result=str)
+    def signOut(self) -> str:
+        self.signedOut.emit()
+        return json.dumps({})

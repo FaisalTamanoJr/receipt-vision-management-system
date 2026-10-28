@@ -84,6 +84,6 @@
   };
   App.peso = (n) => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  /* TODO (auth): replace with the real sign-out once login.html exists. */
-  App.signOut = () => { window.location.href = 'login.html'; };
+  /* In the app, Python logs out and shows the login dialog again. */
+  App.signOut = async () => { if (!(await App.api('signOut'))) window.location.href = 'login.html'; };
 })();

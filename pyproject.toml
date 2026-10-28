@@ -13,6 +13,7 @@ dependencies = [
   "alembic",
   "pillow",
   "google-genai",
+  "argon2-cffi",
 ]
 
 [project.optional-dependencies]

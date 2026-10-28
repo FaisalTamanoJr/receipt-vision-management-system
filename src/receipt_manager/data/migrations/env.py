@@ -64,6 +64,12 @@ def run_migrations_online() -> None:
 
 
 def _run(connection) -> None:
+    # batch mode drops the old table and renames the copy, which fails while
+    # engine.py has foreign keys on and other tables point to it (e.g. login_table
+    # -> user_table). The pragma is ignored inside a transaction, hence the commit.
+    connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+    connection.commit()
+
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
@@ -74,6 +80,13 @@ def _run(connection) -> None:
 
     with context.begin_transaction():
         context.run_migrations()
+
+    # the checks were off, so make sure the migration didn't leave broken links
+    broken = connection.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+    connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+    connection.commit()
+    if broken:
+        raise RuntimeError(f"migration left rows with missing foreign keys: {broken}")
 
 
 if context.is_offline_mode():

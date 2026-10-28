@@ -43,6 +43,7 @@ class User:
     email: str | None = None
     birthday: date | None = None
     date_created: date = field(default_factory=date.today)
+    is_active: bool = True  # False blocks login without deleting the user
 
     login: Login | None = None
     receipts: list[Receipt] = field(default_factory=list)
