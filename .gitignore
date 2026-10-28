@@ -21,6 +21,17 @@ models/
 sample_receipts/*
 !sample_receipts/.gitkeep
 receipts.csv
+# receipt photos anywhere in the repo, use `git add -f` for images that belong in git (e.g. UI assets)
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.webp
+# test runs (scripts/run_test_plan.py): receipt copies and OCR text stay local
+test_results/*/images/
+test_results/*/extracted/
+# terminal screenshots of the setup are safe to commit
+!test_results/*/screenshots/setup_*.png
 
 # Local config and logs
 settings.json
